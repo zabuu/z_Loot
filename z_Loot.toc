@@ -1,0 +1,18 @@
+## Interface: 11200
+## Title: |cffffd100z|rLoot
+## Notes: zSuite dungeon journal: boss maps, loot tables, sets and collections.
+## Author: Samer / Zab (built on InstanceJournal and Atlas-CFM loot tables)
+## Version: 0.4.1
+## DefaultState: enabled
+## SavedVariablesPerCharacter: ZL_FilterClass, ZL_Settings, ZL_FirstTimeBindingDone
+
+zLoot.lua
+Bindings.xml
+Locale.lua
+Lib.lua
+Core.lua
+Packed.lua
+ui\MapFiles.lua
+ui\Theme.lua
+ui\Main.lua
+Init.lua
