@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.4.2 (2026-11-08)
+
+* Window size goes down to 60% (60/70/80/90/100/115/130). Size stops at the smallest and largest
+  instead of wrapping around.
+* Moving the window no longer lags: you drag a light outline and the window drops where you let go.
+  The position is remembered.
+
 ## 0.4.1 (2026-11-06)
 
 * Map is no longer offset. The map is drawn by cropping its tiles instead of a scroll frame, so the wheel,

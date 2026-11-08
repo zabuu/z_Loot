@@ -23,7 +23,7 @@ local panes = {}
 local mapPins, mapTiles, floorButtons = {}, {}, {}
 
 local TAB_LABELS = {"Dungeons", "Raids", "Collections"}
-local SCALES = {0.9, 1.0, 1.15, 1.3}
+local SCALES = {0.6, 0.7, 0.8, 0.9, 1.0, 1.15, 1.3}
 
 ---------------------------------------------------------------- data helpers
 
@@ -1054,7 +1054,12 @@ local function build()
     F = CreateFrame("Frame", "ZL_Main", UIParent)
     F:SetWidth(W)
     F:SetHeight(H)
-    F:SetPoint("CENTER", UIParent, "CENTER", 0, 20)
+    local pos = ZL_Settings.pos
+    if pos and pos.x and pos.y then
+        F:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", pos.x, pos.y)
+    else
+        F:SetPoint("CENTER", UIParent, "CENTER", 0, 20)
+    end
     F:SetFrameStrata("HIGH")
     F:SetToplevel(true)
     F:EnableMouse(true)
@@ -1075,8 +1080,38 @@ local function build()
     head:SetHeight(HEADER_H)
     head:EnableMouse(true)
     head:RegisterForDrag("LeftButton")
-    head:SetScript("OnDragStart", function() F:StartMoving() end)
-    head:SetScript("OnDragStop", function() F:StopMovingOrSizing() end)
+    -- Moving the full window makes the game re-lay out every region on each frame, which lags.
+    -- Drag a light outline instead and drop the window where it ends up.
+    local ghost = CreateFrame("Frame", nil, UIParent)
+    ghost:SetFrameStrata("TOOLTIP")
+    ghost:SetMovable(true)
+    ghost:SetClampedToScreen(true)
+    ghost:Hide()
+    U.Fill(ghost, {C.bg[1], C.bg[2], C.bg[3], 0.35})
+    U.Border(ghost, C.accent)
+    head:SetScript("OnDragStart", function()
+        ghost:SetScale(F:GetScale())
+        ghost:SetWidth(F:GetWidth())
+        ghost:SetHeight(F:GetHeight())
+        ghost:ClearAllPoints()
+        ghost:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", F:GetLeft(), F:GetTop())
+        ghost:Show()
+        ghost:StartMoving()
+    end)
+    head:SetScript("OnDragStop", function()
+        if not ghost:IsShown() then return end
+        ghost:StopMovingOrSizing()
+        local x, y = ghost:GetLeft(), ghost:GetTop()
+        ghost:Hide()
+        if x and y then
+            F:ClearAllPoints()
+            F:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", x, y)
+            ZL_Settings.pos = {x = x, y = y}
+        end
+    end)
+    head:SetScript("OnHide", function()
+        if ghost:IsShown() then ghost:StopMovingOrSizing() ghost:Hide() end
+    end)
     U.Fill(head, C.panel)
     local hl = U.Tex(head, "ARTWORK", C.line)
     hl:SetHeight(1)
@@ -1114,13 +1149,22 @@ local function build()
     size:RegisterForClicks("LeftButtonUp", "RightButtonUp")
     size:SetScript("OnClick", function()
         local cur = ZL_Settings.scale or 1
-        local idx = 2
-        for i, s in ipairs(SCALES) do if math.abs(s - cur) < 0.01 then idx = i end end
+        local idx, best = 5, 99
+        for i, s in ipairs(SCALES) do
+            if math.abs(s - cur) < best then idx, best = i, math.abs(s - cur) end
+        end
         if arg1 == "RightButton" then idx = idx - 1 else idx = idx + 1 end
-        if idx < 1 then idx = table.getn(SCALES) end
-        if idx > table.getn(SCALES) then idx = 1 end
+        if idx < 1 then idx = 1 end
+        if idx > table.getn(SCALES) then idx = table.getn(SCALES) end
+        local old, l, t = F:GetScale(), F:GetLeft(), F:GetTop()
         ZL_Settings.scale = SCALES[idx]
         F:SetScale(SCALES[idx])
+        if l and t then -- keep the top-left corner where it was
+            local x, y = l * old / SCALES[idx], t * old / SCALES[idx]
+            F:ClearAllPoints()
+            F:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", x, y)
+            ZL_Settings.pos = {x = x, y = y}
+        end
         this.onEnter(this)
     end)
 
