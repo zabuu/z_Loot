@@ -52,7 +52,17 @@ local nItems=0
 COLLECTION_IDS={}
 local function pageString(rows)
   local r={}
-  for _,e in ipairs(seq(rows)) do
+  -- Atlas pages are laid out in blocks of 15: blocks 1,3,5.. form the left column and 2,4,6.. the right.
+  -- Read them column by column so a set that continues in a later block stays under its own header.
+  local ordered={}
+  if type(rows)=="table" then
+    local n=0 for k in pairs(rows) do if type(k)=="number" and k>n then n=k end end
+    local idx={} for i=1,n do if rows[i]~=nil then table.insert(idx,i) end end
+    local function key(i) local b=math.floor((i-1)/15) return math.mod(b,2)*1e6+i end
+    table.sort(idx,function(a,b) return key(a)<key(b) end)
+    for _,i in ipairs(idx) do table.insert(ordered,rows[i]) end
+  end
+  for _,e in ipairs(ordered) do
     if type(e)=="table" and vis(e) then
       if e.id and type(e.id)=="number" and not e.skill then
         local cont={}

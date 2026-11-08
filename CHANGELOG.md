@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.3 (2026-11-08)
+
+* Spec sets (for example Cenarion Regalia, Stormrage Harness, Dreamwalker Regalia) no longer lose pieces to
+  the next set. Atlas pages run in two columns, and pieces that continue lower in a column now stay under
+  their own set heading.
+
 ## 0.4.2 (2026-11-08)
 
 * Window size goes down to 60% (60/70/80/90/100/115/130). Size stops at the smallest and largest
