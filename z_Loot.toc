@@ -2,7 +2,7 @@
 ## Title: |cffffd100z|rLoot
 ## Notes: zSuite dungeon journal: boss maps, loot tables, sets and collections.
 ## Author: Samer / Zab (built on InstanceJournal and Atlas-CFM loot tables)
-## Version: 0.4.3
+## Version: 0.4.4
 ## DefaultState: enabled
 ## SavedVariablesPerCharacter: ZL_FilterClass, ZL_Settings, ZL_FirstTimeBindingDone
 

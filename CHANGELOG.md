@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.4.4 (2026-11-09)
+
+* Every dungeon and raid with trash drops (44 of them) now ends its boss list with a Trash entry, showing
+  what the regular mobs drop and how often. Taken from the Atlas loot tables.
+
 ## 0.4.3 (2026-11-08)
 
 * Spec sets (for example Cenarion Regalia, Stormrage Harness, Dreamwalker Regalia) no longer lose pieces to

@@ -154,6 +154,44 @@ for i,t in ipairs(tiles) do
   end
   w("}}")
 end
+-- trash drops for each journal instance (journal loot format "id:chance,...")
+do
+  local MAP={BFD={"BlackfathomDeeps"},BRD={"BlackrockDepths"},LBRS={"BlackrockSpireLower"},UBRS={"BlackrockSpireUpper"},
+    BWL={"BlackwingLair"},BM={"CavernsOfTimeBlackMorass"},DME={"DireMaulEast"},DMN={"DireMaulNorth"},DMW={"DireMaulWest"},
+    DMR={"DragonmawRetreat"},ES={"EmeraldSanctum"},GC={"GilneasCity"},GNOMEREGAN={"Gnomeregan","GnomereganEnt"},
+    HQ={"HateforgeQuarry"},KC={"KarazhanCrypt"},KARA10={"LowerKarazhan"},KARA40={"TowerofKarazhan"},MARA={"Maraudon"},
+    MC={"MoltenCore"},NAXX={"Naxxramas"},RFC={"RagefireChasm"},RFD={"RazorfenDowns"},RFK={"RazorfenKraul"},
+    SMARM={"ScarletMonasteryArmory"},SMCATH={"ScarletMonasteryCathedral"},SMGY={"ScarletMonasteryGraveyard"},
+    SMLIB={"ScarletMonasteryLibrary"},SCHOLO={"Scholomance"},SFK={"ShadowfangKeep"},SV={"StormwindVault"},
+    SWR={"StormwroughtRuins"},STRAT={"Stratholme"},CG={"TheCrescentGrove"},DEADMINES={"TheDeadmines"},
+    AQ20={"TheRuinsofAhnQiraj"},STOCKADES={"TheStockade"},ST={"TheSunkenTemple"},AQ40={"TheTempleofAhnQiraj"},
+    TH={"TimbermawHold"},ULDA={"Uldaman"},WC={"WailingCaverns"},WHC={"WindhornCanyon"},ZF={"ZulFarrak"},ZG={"ZulGurub"}}
+  local keys={} for k in pairs(MAP) do table.insert(keys,k) end table.sort(keys)
+  local parts={}
+  for _,k in ipairs(keys) do
+    local seen,list={},{}
+    for _,ak in ipairs(MAP[k]) do
+      local d=AtlasCFM.InstanceData[ak]
+      if not d then io.stderr:write("trash: no atlas data "..ak.."\n") end
+      for _,b in ipairs(seq(d and d.Bosses)) do
+        if type(b)=="table" and vis(b) and b.id and string.find(tostring(b.id),"Trash") then
+          local def=type(b.defaults)=="table" and b.defaults.dropRate
+          for _,e in ipairs(seq(b.items or b.loot)) do
+            if type(e)=="table" and vis(e) and type(e.id)=="number" and not e.skill and not seen[e.id] then
+              seen[e.id]=true
+              local r=e.dropRate or def
+              table.insert(list,e.id..(r and (":"..r) or ""))
+              COLLECTION_IDS[e.id]=true
+            end
+          end
+        end
+      end
+    end
+    if table.getn(list)>0 then table.insert(parts,k.."="..q(table.concat(list,","))) end
+  end
+  w("ZLDB.TRASH={"..table.concat(parts,",").."}")
+  io.stderr:write("trash instances "..table.getn(parts).."\n")
+end
 -- item names from the comments in Atlas-CFM's data files (fills names for items the journal lacks)
 do
   local names={}

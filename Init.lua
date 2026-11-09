@@ -17,6 +17,16 @@ function ZL_EnsureData()
     end
     ZL_PackedData = nil
 
+    -- trash drops become a last "Trash" entry in each dungeon and raid
+    for key, loot in pairs(ZLDB.TRASH or {}) do
+        local inst = (ZLDB.DG and ZLDB.DG[key]) or (ZLDB.R and ZLDB.R[key])
+        if inst and inst.Bosses then
+            table.insert(inst.Bosses, {Id = "trash", Name = "Trash", IsTrash = true, L = loot,
+                Story = "Drops from the regular mobs throughout " .. (inst.Name or "this instance") .. "."})
+        end
+    end
+    ZLDB.TRASH = nil
+
     for i, inst in ipairs(ZLDB.C or {}) do
         inst.IsCollection = true
         inst.Order = i
